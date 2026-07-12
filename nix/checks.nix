@@ -926,6 +926,7 @@
             docker-image-test
             goss
             image-size-analyzer
+            pg-backrest
             pg_regress
             pg_isolation_regress
             pg-startup-profiler
