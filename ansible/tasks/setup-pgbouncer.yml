@@ -6,10 +6,9 @@
       - libevent-dev
       - libssl-dev
       - libsystemd-dev
-      - pkg-config
       - pandoc
+      - pkg-config
       - python3
-    update_cache: true
 
 - name: PgBouncer - download latest release
   ansible.builtin.get_url:

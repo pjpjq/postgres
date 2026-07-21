@@ -17,9 +17,6 @@
           - sysstat
           - tzdata
           - vim
-        update_cache: true
-    # SEE https://github.com/georchestra/ansible/issues/55#issuecomment-588313638
-    # Without this, a similar error is faced
 
     - name: Use nftables backend
       community.general.alternatives:
