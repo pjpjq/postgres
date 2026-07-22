@@ -15,7 +15,8 @@
 - name: supabase-admin-agent - config dir
   file:
     path: /opt/supabase-admin-agent
-    owner: supabase-admin-agent
+    owner: root
+    group: root
     state: directory
 
 - name: supabase-admin-agent - gpg dir
@@ -90,7 +91,8 @@
     remote_src: yes
     src: /tmp/supabase-admin-agent.tar.gz
     dest: /opt/supabase-admin-agent/
-    owner: supabase-admin-agent
+    owner: root
+    group: root
     extra_opts:
       - --strip-components=1
 
@@ -99,7 +101,8 @@
     path: /opt/supabase-admin-agent/supabase-admin-agent
     src: "/opt/supabase-admin-agent/supabase-admin-agent-linux-{{ arch }}"
     state: link
-    owner: supabase-admin-agent
+    owner: root
+    group: root
     mode: "0755"
     force: yes
 
