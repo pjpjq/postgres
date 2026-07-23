@@ -58,7 +58,7 @@
     # (running as the pgbackrest user) cannot read conf files created by adminapi.
     - {dir: /etc/pgbackrest/conf.d, mode: '02770'}
     - {dir: /var/lib/pgbackrest}
-    - {dir: /data/pgbackrest_spool}
+    - {dir: /var/spool/pgbackrest}
     - {dir: /var/log/pgbackrest}
   loop_control:
     loop_var: backrest_dir
