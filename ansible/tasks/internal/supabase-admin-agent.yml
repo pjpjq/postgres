@@ -15,7 +15,7 @@
 - name: supabase-admin-agent - config dir
   file:
     path: /opt/supabase-admin-agent
-    # /opt/supabase-admin-agent (dir, unpacked binary, symlink) is all root-owned so the service account can run it via sudoers but never modify it (INDATA-996)
+    # /opt/supabase-admin-agent (dir, unpacked binary, symlink) is all root-owned so the pgbackrest-reconcile sudo grant below can't be used to swap the binary first; the agent group already has effectively unrestricted root via the salt-call entry, this just closes one more tampering path (INDATA-996)
     owner: root
     group: root
     mode: "0755"
