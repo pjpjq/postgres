@@ -47,7 +47,7 @@
     # (running as the pgbackrest user) cannot read conf files created by adminapi.
     - {dir: /etc/pgbackrest/conf.d, mode: '02770'}
     - {dir: /var/lib/pgbackrest}
-    # must match spool-path in ansible/files/pgbackrest_config/pgbackrest.conf
+    # must match spool-path in ansible/files/pgbackrest_config/pgbackrest.conf; requires /data already mounted, which setup-postgres.yml's import guarantees runs before this task
     - {dir: /data/pgbackrest_spool}
     - {dir: /var/log/pgbackrest}
   loop_control:
