@@ -926,7 +926,6 @@
             docker-image-test
             goss
             image-size-analyzer
-            pg-backrest
             pg_regress
             pg_isolation_regress
             pg-startup-profiler
@@ -942,6 +941,7 @@
         })
         // pkgs.lib.optionalAttrs (pkgs.stdenv.isLinux) {
           inherit (self'.packages)
+            pg-backrest
             postgresql_15_debug
             postgresql_15_src
             postgresql_orioledb-17_debug
