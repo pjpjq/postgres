@@ -89,8 +89,6 @@
     path: /opt/supabase-admin-agent/supabase-admin-agent
     src: "/opt/supabase-admin-agent/supabase-admin-agent-linux-{{ platform }}"
     state: link
-    owner: root
-    group: root
     mode: "0755"
     force: yes
 
