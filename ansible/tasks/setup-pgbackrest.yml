@@ -47,7 +47,7 @@
     # (running as the pgbackrest user) cannot read conf files created by adminapi.
     - {dir: /etc/pgbackrest/conf.d, mode: '02770'}
     - {dir: /var/lib/pgbackrest}
-    # must match spool-path in ansible/files/pgbackrest_config/pgbackrest.conf; /data is always already mounted by the time this task runs (setup-postgres.yml imports before setup-pgbackrest.yml in playbook.yml)
+    # must match spool-path in ansible/files/pgbackrest_config/pgbackrest.conf; in production (stage2, non-qemu) builds, setup-postgres.yml already mounted /data as its own volume by the time this task runs, since it's imported earlier in playbook.yml
     - {dir: /data/pgbackrest_spool}
     - {dir: /var/log/pgbackrest}
   loop_control:
