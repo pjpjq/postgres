@@ -18,6 +18,7 @@
     # /opt/supabase-admin-agent (dir, unpacked binary, symlink) is all root-owned so the service account can run it via sudoers but never modify it (INDATA-996)
     owner: root
     group: root
+    mode: "0755"
     state: directory
 
 - name: supabase-admin-agent - gpg dir
@@ -78,6 +79,7 @@
     dest: /opt/supabase-admin-agent/
     owner: root
     group: root
+    mode: "0755"
     extra_opts:
       - --strip-components=1
 
