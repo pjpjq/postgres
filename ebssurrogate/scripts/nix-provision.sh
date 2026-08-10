@@ -18,6 +18,13 @@ function setup_apt {
 	export APT_CONFIG=$aptconf DEBIAN_FRONTEND=noninteractive
 }
 
+function waitfor_boot_finished {
+	while [[ ! -f /var/lib/cloud/instance/boot-finished ]]; do
+		echo 'Waiting for cloud-init...'
+		sleep 1
+	done
+}
+
 function cleanup_apt {
 	apt-get clean
 	apt-get autoremove --purge --yes
@@ -99,6 +106,7 @@ function cleanup_packages {
 	apt-get --y remove --purge ansible
 }
 
+waitfor_boot_finished
 setup_apt
 update_and_upgrade_apt
 install_packages
