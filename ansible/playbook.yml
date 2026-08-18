@@ -208,3 +208,64 @@
       become: yes
       shell: |
         sudo -u ubuntu bash -c ". /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && nix-collect-garbage -d"
+
+    # Created last, after the nix installs and garbage collection above, so the
+    # swapfile's 1 GiB isn't occupying the root volume while nix needs the room.
+    # Not activated here; it comes up via fstab on first boot.
+    - name: Create swapfile
+      when: stage2 and not qemu
+      become: yes
+      block:
+        - name: Allocate and format swapfile
+          ansible.builtin.shell: |
+            fallocate -l 1G /swapfile
+            chmod 600 /swapfile
+            mkswap /swapfile
+          args:
+            creates: /swapfile
+
+        - name: Add swapfile to fstab
+          ansible.posix.mount:
+            src: /swapfile
+            path: none
+            fstype: swap
+            opts: sw
+            dump: "0"
+            passno: "0"
+            state: present
+
+        # Moved here from setup-tuned.yml, which gated this on
+        # ansible_facts['swaptotal_mb'] > 0. Swap is no longer created in stage1,
+        # so nothing is swapped on while the playbook runs and that gate would
+        # now skip. Keeping it alongside the swapfile it configures.
+        - name: 'tuned - Decrease the kernel swappiness'  # noqa: name[casing]
+          community.general.ini_file:
+            create: true
+            group: 'root'
+            mode: '0644'
+            no_extra_spaces: true
+            option: 'vm.swappiness'
+            path: '/etc/tuned/profiles/postgresql/tuned.conf'
+            section: 'sysctl'
+            state: 'present'
+            value: '10'
+
+        - name: 'tuned - Load zstd compressor module'  # noqa: name[casing]
+          community.general.modprobe:
+            name: 'zstd'
+            persistent: 'present'
+            state: 'present'
+
+        - name: 'tuned - Configure and enable zswap'  # noqa: name[casing]
+          ansible.builtin.shell:
+            cmd: "echo {{ zswap_item['value'] }}  > /sys/module/zswap/parameters/{{ zswap_item['param'] }}"
+          changed_when: true
+          loop:
+            - param: 'compressor'
+              value: 'zstd'
+            - param: 'max_pool_percent'
+              value: '10'
+            - param: 'enabled'
+              value: 'Y'
+          loop_control:
+            loop_var: 'zswap_item'

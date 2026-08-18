@@ -30,6 +30,7 @@ function install_packages {
 function install_nix() {
 	curl -L https://releases.nixos.org/nix/nix-2.34.6/install | sh -s -- --yes --daemon --nix-extra-conf-file <(
 		cat <<-EOF
+			always-allow-substitutes = true
 			extra-experimental-features = nix-command flakes
 			extra-substituters = https://nix-postgres-artifacts.s3.amazonaws.com
 			extra-trusted-public-keys = nix-postgres-artifacts:dGZlQOvKcNEjvT7QEAJbcV6b6uk7VF/hWMjhYleiaLI=
