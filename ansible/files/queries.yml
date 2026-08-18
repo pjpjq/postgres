@@ -6,4 +6,4 @@ pg_wraparound:
   metrics:
     - max_transaction_id_age:
         usage: GAUGE
-        description: "Max transaction ID age (wraparound risk) across databases"
+        description: "Max transaction ID age (in XIDs; wraparound risk) across databases"
