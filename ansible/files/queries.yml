@@ -1,0 +1,9 @@
+pg_wraparound:
+  query: |
+    SELECT
+      max(age(datfrozenxid)) AS max_transaction_id_age
+    FROM pg_database
+  metrics:
+    - max_transaction_id_age:
+        usage: GAUGE
+        description: "Max transaction ID age (wraparound risk) across databases"
