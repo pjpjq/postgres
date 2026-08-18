@@ -347,7 +347,13 @@ device_partition_mappings
 format_and_mount_rootfs
 format_build_partition
 setup_chroot_environment
+df /mnt
+df -h /mnt
+du -x -h --max-depth=2 /mnt | sort -rh | head -30
 execute_playbook
 update_systemd_services
 clean_system
+df /mnt
+df -h /mnt
+du -x -h --max-depth=2 /mnt | sort -rh | head -30
 umount_reset_mappings

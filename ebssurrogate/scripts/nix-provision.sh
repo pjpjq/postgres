@@ -71,11 +71,27 @@ function cleanup_packages {
 	apt-get remove --purge --yes ansible
 }
 
+function show_disk_usage {
+	echo "disk usage post $1:"
+	df /
+	df -h /
+	du -x -h --max-depth=2 / | sort -rh | head -30
+}
+
+# Snapshot disk usage even when a step below fails; errexit would otherwise skip
+# the remaining show_disk_usage calls and we'd lose the state we want to debug.
+trap 'show_disk_usage EXIT' EXIT
+
 setup_apt
 update_and_upgrade_apt
+show_disk_usage update_and_upgrade_apt
 install_packages
+show_disk_usage install_packages
 install_nix
+show_disk_usage install_nix
 execute_stage2_playbook
+show_disk_usage ansible
 cleanup_packages
 update_and_upgrade_apt
 cleanup_apt
+show_disk_usage update_and_upgrade
