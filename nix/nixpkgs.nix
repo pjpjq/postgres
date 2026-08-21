@@ -5,24 +5,34 @@
     {
       _module.args.pkgs = import inputs.nixpkgs {
         inherit system;
-        config.allowUnfree = true;
-        permittedInsecurePackages = [ "v8-9.7.106.18" ];
+        config = {
+          allowUnfree = true;
+          permittedInsecurePackages = [ "v8-9.7.106.18" ];
+        };
         overlays = [
           (import inputs.rust-overlay)
           self.overlays.default
-          (
-            let
-              # Provide older versions of packages required by some extensions
-              oldstable = import inputs.nixpkgs-oldstable {
-                inherit system;
-                config.allowUnfree = true;
+          (final: prev: {
+            curl_8_6 = prev.curl.overrideAttrs (old: rec {
+              version = "8.6.0";
+              src = prev.fetchurl {
+                urls = [
+                  "https://curl.haxx.se/download/curl-${version}.tar.xz"
+                  "https://github.com/curl/curl/releases/download/curl-${
+                    builtins.replaceStrings [ "." ] [ "_" ] version
+                  }/curl-${version}.tar.xz"
+                ];
+                hash = "sha256-PM1V2Rr5UWU534BiX4GMc03G8uz5utozx2dl6ZEh2xU=";
               };
-            in
-            _final: _prev: {
-              curl_8_6 = oldstable.curl;
-              v8_oldstable = oldstable.v8;
-            }
-          )
+              configureFlags = builtins.filter (
+                flag: !builtins.elem flag [
+                  "--with-nghttp3"
+                  "--with-ngtcp2"
+                ]
+              ) old.configureFlags;
+            });
+            v8_oldstable = prev.callPackage ./packages/v8-oldstable { };
+          })
           inputs.devshell.overlays.default
         ];
       };
