@@ -34,13 +34,14 @@ elif [ -n "$(command -v apt-get)" ]; then
 		libicu-dev \
 		libcgal-dev \
 		libgcc-9-dev \
-		libgcc-8-dev \
 		ansible \
 		snapd
 
-	# add-apt-repository --yes --remove ppa:ansible/ansible
+	if [[ $(uname -m) == aarch64 ]]; then
+		apt-get -y remove --purge libgcc-8-dev
+	fi
 
-	source /etc/os-release
+	# add-apt-repository --yes --remove ppa:ansible/ansible
 
 	apt-mark manual libevent-2.1-7t64
 
