@@ -128,7 +128,14 @@ build {
       "GIT_SHA=${var.git_sha}",
       "POSTGRES_MAJOR_VERSION=${var.postgres_major_version}"
     ]
-    script = "ebssurrogate/scripts/nix-provision.sh"
+    use_env_var_file = true
+    script           = "ebssurrogate/scripts/nix-provision.sh"
+    execute_command  = "sudo -S sh -c '. {{.EnvVarFile}} && cd /tmp/ansible-playbook && {{.Path}}'"
   }
 
+  provisioner "file" {
+    source      = "/tmp/ansible.log"
+    destination = "/tmp/ansible-stage2.log"
+    direction   = "download"
+  }
 }

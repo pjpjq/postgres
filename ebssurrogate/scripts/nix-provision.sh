@@ -7,51 +7,24 @@ set -o xtrace
 
 exec 1>&2
 
-function setup_apt {
-	local aptconf
-	aptconf=$(mktemp)
-	cat >"$aptconf" <<-EOF
-		APT::Install-Recommends "false";
-		APT::Install-Suggests "false";
-		Acquire::Languages "none";
-	EOF
-	export APT_CONFIG=$aptconf DEBIAN_FRONTEND=noninteractive
-}
-
-function cleanup_apt {
-	apt-get clean
-	apt-get autoremove --purge --yes
-	rm -rf /var/lib/apt/lists/*
-}
-
-function update_and_upgrade_apt {
-	apt-get update --yes
-	apt-get upgrade --yes
-}
-
 function install_packages {
+	# Setup Ansible on host VM
+	apt-get update && apt-get install -y software-properties-common
+
 	# Install EC2-specific packages that were deferred from stage 1
 	# These packages have post-install scripts that need EC2 metadata service access
 	# which only works on a real running EC2 instance (not in chroot)
-	packages=(
-		ec2-hibinit-agent
-		ec2-instance-connect
-		hibagent
-	)
+	apt-get install -y ec2-hibinit-agent ec2-instance-connect hibagent
 
-	# Setup Ansible on host VM
-	# apt-get update && apt-get install -y software-properties-common
-	#
 	# Manually add GPG key with explicit keyserver
-	# apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 93C4A3FD7BB9C367
-	#
+	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 93C4A3FD7BB9C367
+
 	# Add repository and install
 	# TODO (darora): temporarily disabling while Launchpad is under ddos attack and very frequently timing out
-	# add-apt-repository --yes ppa:ansible/ansible
-	# apt-get update
-	packages+=(ansible)
+	# sudo add-apt-repository --yes ppa:ansible/ansible
+	# sudo apt-get update
+	apt-get install -y ansible
 
-	apt-get install --yes "${packages[@]}"
 	ansible-galaxy collection install community.general
 }
 
@@ -95,15 +68,18 @@ function execute_stage2_playbook {
 }
 
 function cleanup_packages {
-	# add-apt-repository --yes --remove ppa:ansible/ansible
-	apt-get --y remove --purge ansible
+	apt-get -y remove --purge ansible
+	# sudo add-apt-repository --yes --remove ppa:ansible/ansible
 }
 
-setup_apt
-update_and_upgrade_apt
+function report_disk_usage {
+	read -r dub _ < <(du -sx -B1 /)
+	read -r duh _ < <(du -sx -h /)
+	printf '::notice::disk_usage bytes=%s human=%s\n' "$dub" "$duh" | tee -a /tmp/ansible.log
+}
+
 install_packages
 install_nix
 execute_stage2_playbook
 cleanup_packages
-update_and_upgrade_apt
-cleanup_apt
+report_disk_usage
